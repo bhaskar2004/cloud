@@ -9,8 +9,19 @@ const app = express();
 const http = require('http').createServer(app);
 
 const allowedOrigins = ['https://finded.netlify.app', 'http://localhost:3000'];
+// Middleware
+app.use(express.json());
+app.use(express.static(path.join(__dirname)));
+// Enable CORS0
+const helmet = require('helmet');
+app.use(
+    helmet({
+        crossOriginOpenerPolicy: {
+            policy: 'same-origin', // Allows window.postMessage calls within the same origin
+        },
+    })
+);
 
-// Enable CORS
 // Update the CORS configuration
 app.use(cors({
     origin: function(origin, callback) {
@@ -75,9 +86,7 @@ app.get('/', (req, res) => {
     res.send('Chat server is running');
 });
 
-// Middleware
-app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+
 
 const users = new Map();
 const activeUsers = new Map();
