@@ -16,7 +16,7 @@ class ChatApp {
                 };
             }
         };
-        
+
         this.currentUser = null;
         this.currentUserProfile = null;
         this.currentRecipient = null;
@@ -32,7 +32,7 @@ class ChatApp {
         this.setupGoogleSignIn();
         this.setupSocketListeners();
         this.setupEventListeners();
-        this.initializeUI();
+        // this.initializeUI();
     }
 
     setupGoogleSignIn() {
