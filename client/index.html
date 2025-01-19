@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <meta name="google-signin-client_id" content="51565630705-8tp5ar0uouqr70pannk4ptq38fquniir.apps.googleusercontent.com">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+     <!-- Add Firebase SDK -->
+    
+</head>
+<body>
+    <div class="container">
+        <!--login/registation form-->
+        <div class="login-container" id="loginContainer">
+            <h2>Sign In to Chat</h2>
+            <div class="auth-buttons">
+                <button id="googleSignIn" class="google-sign-in">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
+                    Sign in with Google
+                </button>
+            </div>
+            <div class="divider">
+                <span>OR</span>
+            </div>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="userId">Username*</label>
+                    <input type="text" id="userId" placeholder="Enter your name" required />
+                </div>
+                <div class="form-group">
+                    <label for="displayName">Display Name*</label>
+                    <input type="text" id="displayName" placeholder="Display Name" required />
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Email (optional)" />
+                </div>
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" placeholder="Short bio about yourself" maxlength="200"></textarea>
+                    <small class="char-count">0/200</small>
+                </div>
+                <div class="form-group">
+                    <label for="avatarColor">Choose Avatar Color</label>
+                    <div class="color-picker">
+                        <input type="radio" name="avatarColor" value="#FF5733" id="color1" checked>
+                        <label for="color1" style="background-color: #FF5733;"></label>
+                        
+                        <input type="radio" name="avatarColor" value="#33FF57" id="color2">
+                        <label for="color2" style="background-color: #33FF57;"></label>
+                        
+                        <input type="radio" name="avatarColor" value="#3357FF" id="color3">
+                        <label for="color3" style="background-color: #3357FF;"></label>
+                        
+                        <input type="radio" name="avatarColor" value="#FF33F5" id="color4">
+                        <label for="color4" style="background-color: #FF33F5;"></label>
+                        
+                        <input type="radio" name="avatarColor" value="#FFB533" id="color5">
+                        <label for="color5" style="background-color: #FFB533;"></label>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Create Profile & Connect</button>
+            </form>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container" id="chatContainer" style="display: none;">
+            <div class="profile-sidebar">
+                <div class="current-user-profile" id="currentUserProfile">
+                    <!-- Current user profile content will be inserted here -->
+                </div>
+                <div class="chat-sidebar">
+                    <div class="sidebar-header">
+                        <h3>Active Users</h3>
+                        <div class="search-container">
+                            <input type="text" id="userSearch" placeholder="Search users...">
+                        </div>
+                    </div>
+                    <div class="users-list-container">
+                        <ul id="userList" class="users-list">
+                            <!-- User list will be populated here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-main">
+                <div class="chat-header" id="chatHeader">
+                    <div class="default-header">
+                        <h3>Select a user to start chatting</h3>
+                    </div>
+                </div>
+                
+                <div class="chat-body">
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Messages will be inserted here -->
+                    </div>
+                    <div class="typing-indicator" id="typingIndicator">
+                        <div class="typing-bubble">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                        <span class="typing-text"></span>
+                    
+                    </div>
+                </div>
+                
+                <form class="chat-input" id="messageForm">
+                    <div class="input-wrapper">
+                        <input type="text" 
+                               id="messageInput" 
+                               placeholder="Type a message..." 
+                               disabled 
+                               required />
+                        <button type="button" id="emojiButton" class="emoji-button" >😊</button>
+                    </div>
+                    <button type="submit" class="send-button" >Send</button>
+                </form>
+            </div>
+        </div>
+        <div class="theme-toggle">
+            <button id="themeToggle" class="theme-toggle-btn">
+                <span class="light-icon">☀️</span>
+                <span class="dark-icon">🌙</span>
+            </button>
+        </div>
+        <!-- Connection Status Indicator -->
+        <div id="connectionStatus" class="connection-status">
+            <span class="status-dot"></span>
+            <span class="status-text">Connected</span>
+        </div>
+    </div>
+
+    <!-- Emoji Picker Modal -->
+    <div id="emojiPicker" class="emoji-picker" style="display: none">
+        <div class="emoji-grid">
+            <!-- Common emojis -->
+            <button type="button" class="emoji">😊</button>
+            <button type="button" class="emoji">😂</button>
+            <button type="button" class="emoji">👍</button>
+            <button type="button" class="emoji">❤️</button>
+            <button type="button" class="emoji">👋</button>
+            <button type="button" class="emoji">🎉</button>
+            <button type="button" class="emoji">🤔</button>
+            <button type="button" class="emoji">😎</button>
+            <!-- Add more emojis as needed -->
+        </div>
+    </div>
+    <!-- <script src="firebase-config.js"></script> -->
+    <script src="script.js"></script>
+</body>
+</html>
