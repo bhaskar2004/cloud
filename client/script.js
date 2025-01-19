@@ -61,7 +61,7 @@ class ChatApp {
             loginStatusElement.textContent = 'Signing in...';
         }
     
-        const backendUrl = 'https://cloud-y3wo.onrender.com'; // Update with your backend URL
+        const backendUrl = 'https://cloud-y3wo.onrender.com/api/login'; // Update with your backend URL
     
         fetch(backendUrl, {
             method: 'POST',
