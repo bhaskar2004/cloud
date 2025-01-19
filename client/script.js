@@ -1,8 +1,11 @@
+const { transports } = require("engine.io");
+
 class ChatApp {
     constructor() {
         this.messages = new Map();
-        this.socket = io("https://chat-app-html-css-js.onrender.com", {
-            withCredentials: true
+        this.socket = io("https://cloud-y3wo.onrender.com", {
+            withCredentials: true,
+            transports:['websocket','polling']
         });
         this.currentUser = null;
         this.currentUserProfile = null;
@@ -115,7 +118,7 @@ class ChatApp {
 
         // Rest of your existing event listeners...
     }
-
+  
     async signInWithGoogle() {
         try {
             // We don't need to manually trigger the sign-in since Google's client library
@@ -133,6 +136,28 @@ class ChatApp {
             console.error('Error signing in with Google:', error);
             alert('Failed to sign in with Google. Please try again.');
         }
+    }
+
+    setupSocketListeners() {
+        this.socket.on('connect', () => {
+            console.log('Connected to server');
+        });
+    
+        this.socket.on('userList', (users) => {
+            this.updateUserList(users);
+        });
+    
+        this.socket.on('privateMessage', (data) => {
+            this.receiveMessage(data);
+        });
+    
+        this.socket.on('userTyping', (data) => {
+            this.showTypingIndicator(data);
+        });
+    
+        this.socket.on('userStatusUpdate', (data) => {
+            this.updateUserStatus(data);
+        });
     }
 
     setupEventListeners() {

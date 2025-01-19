@@ -9,7 +9,7 @@ const app = express();
 const http = require('http').createServer(app);
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? ['https://finded.netlify.app/']
+    ? ['https://finded.netlify.app']  // Add your Netlify domain
     : ['http://localhost:3000'];
 
 // Enable CORS
@@ -59,11 +59,13 @@ app.post('/api/login', async (req, res) => {
 // Handle preflight requests explicitly
 app.options('*', cors());
 
+// Update Socket.IO CORS config too
 const io = require('socket.io')(http, {
     cors: {
         origin: allowedOrigins,
         methods: ["GET", "POST"],
         credentials: true,
+        allowedHeaders: ["*"]
     },
 });
 
