@@ -9,7 +9,18 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
      <!-- Add Firebase SDK -->
-    
+     <script>
+        window.onerror = function(msg, src, lineNo, columnNo, error) {
+            if (msg.includes('google is not defined')) {
+                console.warn('Google API loading delayed, retrying...');
+                setTimeout(() => {
+                    if (window.chatApp) {
+                        window.chatApp.setupGoogleSignIn();
+                    }
+                }, 1000);
+            }
+        };
+        </script>
 </head>
 <body>
     <div class="container">

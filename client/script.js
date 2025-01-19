@@ -1,15 +1,28 @@
-const { transports } = require("engine.io");
-
 class ChatApp {
     constructor() {
-        // Also update your Socket.IO client connection in script.js
-this.socket = io("https://your-render-backend-url", {
-    withCredentials: true,
-    transports: ['websocket', 'polling'],
-    cors: {
-        origin: "https://finded.netlify.app"
-    }
-});
+        this.messages = new Map();
+        this.socket = io("https://your-render-backend-url", {
+            withCredentials: true
+        });
+
+        // Wait for Google library to load
+        window.onload = () => {
+            if (typeof google !== 'undefined') {
+                this.setupGoogleSignIn();
+            } else {
+                // If Google library isn't loaded yet, wait for it
+                window.onGoogleLibraryLoad = () => {
+                    this.setupGoogleSignIn();
+                };
+            }
+        };
+        
+        this.currentUser = null;
+        this.currentUserProfile = null;
+        this.currentRecipient = null;
+        this.typingTimeout = null;
+        this.themeManager = new ThemeManager();
+        this.activeUsers = new Map();
         this.currentUser = null;
         this.currentUserProfile = null;
         this.currentRecipient = null;
