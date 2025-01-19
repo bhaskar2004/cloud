@@ -9,7 +9,7 @@ const app = express();
 const http = require('http').createServer(app);
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? ['https://cloud77.netlify.app']
+    ? ['https://finded.netlify.app/']
     : ['http://localhost:3000'];
 
 // Enable CORS
