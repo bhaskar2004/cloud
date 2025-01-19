@@ -8,21 +8,20 @@ const path = require('path');
 const app = express();
 const http = require('http').createServer(app);
 
-const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? ['https://finded.netlify.app']  // Add your Netlify domain
-    : ['http://localhost:3000'];
+const allowedOrigins = ['https://finded.netlify.app', 'http://localhost:3000'];
 
 // Enable CORS
+// Update the CORS configuration
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+    origin: function(origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    methods: ['GET', 'POST', 'OPTIONS'],
     credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS']
 }));
 
 app.post('/api/login', async (req, res) => {
@@ -59,16 +58,16 @@ app.post('/api/login', async (req, res) => {
 // Handle preflight requests explicitly
 app.options('*', cors());
 
-// Update Socket.IO CORS config too
+// Update Socket.IO CORS configuration
 const io = require('socket.io')(http, {
     cors: {
         origin: allowedOrigins,
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST", "OPTIONS"],
         credentials: true,
         allowedHeaders: ["*"]
     },
+    allowEIO3: true
 });
-
 const PORT = process.env.PORT || 3000;
 
 // Basic Routes

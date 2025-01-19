@@ -2,11 +2,14 @@ const { transports } = require("engine.io");
 
 class ChatApp {
     constructor() {
-        this.messages = new Map();
-        this.socket = io("https://cloud-y3wo.onrender.com", {
-            withCredentials: true,
-            transports:['websocket','polling']
-        });
+        // Also update your Socket.IO client connection in script.js
+this.socket = io("https://your-render-backend-url", {
+    withCredentials: true,
+    transports: ['websocket', 'polling'],
+    cors: {
+        origin: "https://finded.netlify.app"
+    }
+});
         this.currentUser = null;
         this.currentUserProfile = null;
         this.currentRecipient = null;
@@ -45,7 +48,7 @@ class ChatApp {
             loginStatusElement.textContent = 'Signing in...';
         }
 
-        fetch('http://localhost:3000/api/login', {
+        fetch('https://your-render-backend-url/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
