@@ -1,7 +1,7 @@
 class ChatApp {
     constructor() {
         this.messages = new Map();
-        this.socket = io("https://your-render-backend-url", {
+        this.socket = io("https://cloud-y3wo.onrender.com", {
             withCredentials: true
         });
 
@@ -53,45 +53,53 @@ class ChatApp {
             alert('Google sign-in failed. Please try again.');
             return;
         }
-
+    
         console.log('Received credential:', response.credential);
-
+    
         const loginStatusElement = document.getElementById('loginStatus');
         if (loginStatusElement) {
             loginStatusElement.textContent = 'Signing in...';
         }
-
-        fetch('https://your-render-backend-url/api/login', {
+    
+        const backendUrl = 'https://cloud-y3wo.onrender.com'; // Update with your backend URL
+    
+        fetch(backendUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ credential: response.credential })
         })
-        .then(res => {
-            if (!res.ok) {
-                return res.json().then(err => {
-                    throw new Error(err.message || 'Login failed');
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => {
+                        throw new Error(err.message || 'Login failed. Please check your credentials.');
+                    });
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log('Login successful:', data);
+                this.handleSuccessfulLogin({
+                    userId: data.userId,
+                    profile: data.profile,
+                    email: data.email
                 });
-            }
-            return res.json();
-        })
-        .then(data => {
-            console.log('Login successful:', data);
-            this.handleSuccessfulLogin({
-                userId: data.userId,
-                profile: data.profile,
-                email: data.email
+    
+                if (loginStatusElement) {
+                    loginStatusElement.textContent = 'Login successful!';
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                alert(`Login failed: ${error.message}. Please try again.`);
+                
+                if (loginStatusElement) {
+                    loginStatusElement.textContent = 'Login failed. Please try again.';
+                }
             });
-        })
-        .catch(error => {
-            console.error('Login error:', error);
-            alert('Login failed. Please try again.');
-            if (loginStatusElement) {
-                loginStatusElement.textContent = 'Login failed';
-            }
-        });
     }
+    
 
     handleSuccessfulLogin(userData) {
         this.currentUser = userData.userId;

@@ -1,52 +1,58 @@
 const express = require('express');
 const { OAuth2Client } = require('google-auth-library');
-// Corrected client ID format
-const client = new OAuth2Client('51565630705-8tp5ar0uouqr70pannk4ptq38fquniir.apps.googleusercontent.com');
 const cors = require('cors');
-const path = require('path');
+const helmet = require('helmet');
+const http = require('http');
+const socketIo = require('socket.io');
 
 const app = express();
-const http = require('http').createServer(app);
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: ['https://finded.netlify.app', 'http://localhost:3000'],
+        methods: ['GET', 'POST', 'OPTIONS'],
+        credentials: true,
+        allowedHeaders: ['*'],
+    },
+    allowEIO3: true, // For backward compatibility
+});
 
-const allowedOrigins = ['https://finded.netlify.app', 'http://localhost:3000'];
+const client = new OAuth2Client('51565630705-8tp5ar0uouqr70pannk4ptq38fquniir.apps.googleusercontent.com');
+const PORT = process.env.PORT || 3000;
+
 // Middleware
-app.use(express.json());
-app.use(express.static(path.join(__dirname)));
-// Enable CORS0
-const helmet = require('helmet');
 app.use(
     helmet({
-        crossOriginOpenerPolicy: {
-            policy: 'same-origin', // Allows window.postMessage calls within the same origin
-        },
+        crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' }, // Fix window.closed issues
     })
 );
 
-// Update the CORS configuration
 app.use(cors({
-    origin: function(origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: ['https://finded.netlify.app', 'http://localhost:3000'], // Allowed origins
     credentials: true,
-    methods: ['GET', 'POST', 'OPTIONS']
+    methods: ['GET', 'POST', 'OPTIONS'],
 }));
 
+app.use(express.json()); // Parse JSON payload
+
+// Handle preflight requests
+app.options('*', cors());
+
+// Basic Route
+app.get('/', (req, res) => {
+    res.send('Chat server is running');
+});
+
+// Google OAuth Login Endpoint
 app.post('/api/login', async (req, res) => {
     try {
         const { credential } = req.body;
-        
-        // Updated audience to match client ID
         const ticket = await client.verifyIdToken({
             idToken: credential,
-            audience: '51565630705-8tp5ar0uouqr70pannk4ptq38fquniir.apps.googleusercontent.com'
+            audience: '51565630705-8tp5ar0uouqr70pannk4ptq38fquniir.apps.googleusercontent.com',
         });
 
         const payload = ticket.getPayload();
-        
         const userData = {
             userId: payload.sub,
             email: payload.email,
@@ -56,43 +62,24 @@ app.post('/api/login', async (req, res) => {
                 givenName: payload.given_name,
                 familyName: payload.family_name,
                 locale: payload.locale,
-                bio: ''
-            }
+                bio: '',
+            },
         };
-        
+
         res.json(userData);
     } catch (error) {
         console.error('Authentication error:', error);
         res.status(401).json({ message: 'Authentication failed' });
     }
 });
-// Handle preflight requests explicitly
-app.options('*', cors());
 
-// Update Socket.IO CORS configuration
-const io = require('socket.io')(http, {
-    cors: {
-        origin: allowedOrigins,
-        methods: ["GET", "POST", "OPTIONS"],
-        credentials: true,
-        allowedHeaders: ["*"]
-    },
-    allowEIO3: true
-});
-const PORT = process.env.PORT || 3000;
-
-// Basic Routes
-app.get('/', (req, res) => {
-    res.send('Chat server is running');
-});
-
-
-
+// In-memory storage for users
 const users = new Map();
 const activeUsers = new Map();
 
+// Socket.IO Handlers
 io.on('connection', (socket) => {
-    console.log('A user connected');
+    console.log('A user connected:', socket.id);
 
     // Handle user registration
     socket.on('register', (userData) => {
@@ -155,10 +142,11 @@ io.on('connection', (socket) => {
             }
             activeUsers.delete(disconnectedUser);
         }
-        console.log('User disconnected');
+        console.log('User disconnected:', socket.id);
     });
 });
 
-http.listen(PORT, () => {
+// Start Server
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
